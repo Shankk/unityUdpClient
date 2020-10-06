@@ -256,10 +256,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f1ad586668d834644b8076c3e4f8466f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  playerGO: {fileID: 5947116799760570907, guid: 7f28c4c60056448939b9c8b37e7ba9d8,
+    type: 3}
+  newPlayers: []
+  lastestGameState:
+    pktID: 0
+    players: []
   latestMessage:
     cmd: 0
-  lastestGameState:
-    players: []
 --- !u!1 &963194225
 GameObject:
   m_ObjectHideFlags: 0
