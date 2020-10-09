@@ -39,7 +39,7 @@ public class NetworkMan : MonoBehaviour
         // All this is explained in Week 1-4 slides
         udp = new UdpClient();
         Debug.Log("Connecting...");
-        udp.Connect("localhost", 12345);
+        udp.Connect("18.216.133.45", 12345);
         Byte[] sendBytes = Encoding.ASCII.GetBytes("connect");
         udp.Send(sendBytes, sendBytes.Length);
         udp.BeginReceive(new AsyncCallback(OnReceived), udp);
@@ -218,6 +218,10 @@ public class NetworkMan : MonoBehaviour
             {
                 currentPlayers.Add(playerID, Instantiate(playerGO, new Vector3(0, 0, 0), Quaternion.identity));
                 currentPlayers[playerID].name = playerID;
+                if(playerID == myAddress)
+                {
+                    currentPlayers[playerID].AddComponent<PlayerController>();
+                }
             }
             newPlayers.Clear();
         }
@@ -230,8 +234,8 @@ public class NetworkMan : MonoBehaviour
                     continue;
                 currentPlayers.Add(player.id, Instantiate(playerGO, new Vector3(0, 0, 0), Quaternion.identity));
                 currentPlayers[player.id].GetComponent<Renderer>().material.color = new Color(player.color.R, player.color.G, player.color.B);
-                currentPlayers[player.id].GetComponent<Transform>().position = new Vector3(player.pos.X, player.pos.Y, player.pos.Z);
                 currentPlayers[player.id].name = player.id;
+                
             }
             initialSetofPlayers.players = new Player[0];
         }
@@ -244,7 +248,7 @@ public class NetworkMan : MonoBehaviour
             foreach (NetworkMan.Player player in lastestGameState.players)
             {
                 string playerID = player.id;
-                currentPlayers[player.id].GetComponent<Renderer>().material.color = new Color(player.color.R, player.color.G, player.color.B);
+                //currentPlayers[player.id].GetComponent<Renderer>().material.color = new Color(player.color.R, player.color.G, player.color.B);
                 if(player.id != myAddress)
                 {
                     currentPlayers[player.id].GetComponent<Transform>().position = new Vector3(player.pos.X, player.pos.Y, player.pos.Z);
