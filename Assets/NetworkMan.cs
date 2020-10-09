@@ -20,6 +20,7 @@ public class NetworkMan : MonoBehaviour
     public List<string> newPlayers, droppedPlayers; // a list of new players, and a list of dropped players
     public GameState lastestGameState; // the last game state received from server
     public ListOfPlayers initialSetofPlayers; // initial set of players to spawn
+    public SentData sendJson;
 
     public MessageType latestMessage; // the last message received from the server
 
@@ -32,6 +33,8 @@ public class NetworkMan : MonoBehaviour
         droppedPlayers = new List<string>();
         currentPlayers = new Dictionary<string, GameObject>();
         initialSetofPlayers = new ListOfPlayers();
+        //SentData playerData = new SentData();
+        //sendJson = new SentData(); 
         // Connect to the client.
         // All this is explained in Week 1-4 slides
         udp = new UdpClient();
@@ -42,7 +45,7 @@ public class NetworkMan : MonoBehaviour
         udp.BeginReceive(new AsyncCallback(OnReceived), udp);
 
         InvokeRepeating("HeartBeat", 1, 1);
-        InvokeRepeating("SendPosition", 1, 1);
+        //InvokeRepeating("SendPosition", 1, 1); 
     }
 
     void OnDestroy()
@@ -60,19 +63,19 @@ public class NetworkMan : MonoBehaviour
         public float G;
         public float B;
     }
-
+    [Serializable]
     public struct receivedPosition
     {
         public float X;
         public float Y;
         public float Z;
     }
-
+    [Serializable]
     public struct sentPosition
     {
-        public string X;
-        public string Y;
-        public string Z;
+        public float X;
+        public float Y;
+        public float Z;
     }
 
     /// <summary>
@@ -83,10 +86,16 @@ public class NetworkMan : MonoBehaviour
     {
         public string id;
         public receivedColor color;
-        public receivedPosition position;
-        public sentPosition pos;
+        public receivedPosition pos;
+        
     }
 
+    [Serializable]
+    public class SentData
+    {
+        public sentPosition posData;
+
+    }
 
     [Serializable]
     public class ListOfPlayers
@@ -221,6 +230,7 @@ public class NetworkMan : MonoBehaviour
                     continue;
                 currentPlayers.Add(player.id, Instantiate(playerGO, new Vector3(0, 0, 0), Quaternion.identity));
                 currentPlayers[player.id].GetComponent<Renderer>().material.color = new Color(player.color.R, player.color.G, player.color.B);
+                currentPlayers[player.id].GetComponent<Transform>().position = new Vector3(player.pos.X, player.pos.Y, player.pos.Z);
                 currentPlayers[player.id].name = player.id;
             }
             initialSetofPlayers.players = new Player[0];
@@ -235,7 +245,24 @@ public class NetworkMan : MonoBehaviour
             {
                 string playerID = player.id;
                 currentPlayers[player.id].GetComponent<Renderer>().material.color = new Color(player.color.R, player.color.G, player.color.B);
-                //currentPlayers[player.id].GetComponent<Transform>().position = new Vector3(player.position.X, player.position.Y, player.position.Z);
+                if(player.id != myAddress)
+                {
+                    currentPlayers[player.id].GetComponent<Transform>().position = new Vector3(player.pos.X, player.pos.Y, player.pos.Z);
+                }
+            }
+            foreach (Player player in lastestGameState.players)
+            {
+                if (player.id == myAddress)
+                {
+                    SentData playerData = new SentData();
+                    playerData.posData.X = currentPlayers[player.id].GetComponent<Transform>().position.x;
+                    playerData.posData.Y = currentPlayers[player.id].GetComponent<Transform>().position.y;
+                    playerData.posData.Z = currentPlayers[player.id].GetComponent<Transform>().position.z;
+
+                    string json = JsonUtility.ToJson(playerData);
+                    Byte[] sendJson = Encoding.UTF8.GetBytes(json);
+                    udp.Send(sendJson, sendJson.Length);
+                }
             }
             lastestGameState.players = new Player[0];
         }
@@ -264,28 +291,38 @@ public class NetworkMan : MonoBehaviour
 
     void SendPosition()
     {
-        Byte[] sendBytes = Encoding.ASCII.GetBytes("position");
-        udp.Send(sendBytes, sendBytes.Length);
-        
-        foreach (Player player in initialSetofPlayers.players)
-        {
-            if (player.id == myAddress)
-                continue;
-            player.pos.X = currentPlayers[player.id].GetComponent<Transform>().position.x.ToString();
-            player.pos.Y = currentPlayers[player.id].GetComponent<Transform>().position.y.ToString();
-            player.pos.Z = currentPlayers[player.id].GetComponent<Transform>().position.z.ToString();
 
-            string json = JsonUtility.ToJson(player);
-            Byte[] sendBytes = Encoding.ASCII.GetBytes(json);
-            udp.Send(sendBytes, sendBytes.Length);
+        //TestJson myJson = new TestJson();
+        //myJson.id = "123";
+        //myJson.posData.X = 5;
+        //myJson.posData.Y = 10;
+        //myJson.posData.Z = 15;
 
-            //string posx = currentPlayers[player.id].GetComponent<Transform>().position.x.ToString();
-            //string posy = currentPlayers[player.id].GetComponent<Transform>().position.y.ToString();
-            //string posz = currentPlayers[player.id].GetComponent<Transform>().position.z.ToString();
+        //string json = JsonUtility.ToJson(myJson);
+        //Byte[] sendJson = Encoding.UTF8.GetBytes(json);
+        //udp.Send(sendJson, sendJson.Length);
 
-            //Byte[] data = Encoding.UTF8.GetBytes(pos);
-            // udp.Send(data, data.Length);
-        }
+        //Debug.Log(lastestGameState.players.Length);
+        //if (lastestGameState.players.Length > 0)
+        //{
+        //    Byte[] sendBytes1 = Encoding.ASCII.GetBytes("Test");
+        //    udp.Send(sendBytes1, sendBytes1.Length);
+
+        //    foreach (Player player in lastestGameState.players)
+        //    {
+        //        if (player.id == myAddress)
+        //        {
+        //            player.sentPos.X = currentPlayers[player.id].GetComponent<Transform>().position.x;
+        //            player.sentPos.Y = currentPlayers[player.id].GetComponent<Transform>().position.y;
+        //            player.sentPos.Z = currentPlayers[player.id].GetComponent<Transform>().position.z;
+
+        //            string json = JsonUtility.ToJson(player);
+        //            Byte[] sendJson = Encoding.UTF8.GetBytes(json);
+        //            udp.Send(sendJson, sendJson.Length);
+        //        }
+        //    }
+        //}
+
     }
 
     void Update()
