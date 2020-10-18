@@ -293,42 +293,7 @@ public class NetworkMan : MonoBehaviour
         udp.Send(sendBytes, sendBytes.Length);
     }
 
-    void SendPosition()
-    {
-
-        //TestJson myJson = new TestJson();
-        //myJson.id = "123";
-        //myJson.posData.X = 5;
         //myJson.posData.Y = 10;
-        //myJson.posData.Z = 15;
-
-        //string json = JsonUtility.ToJson(myJson);
-        //Byte[] sendJson = Encoding.UTF8.GetBytes(json);
-        //udp.Send(sendJson, sendJson.Length);
-
-        //Debug.Log(lastestGameState.players.Length);
-        //if (lastestGameState.players.Length > 0)
-        //{
-        //    Byte[] sendBytes1 = Encoding.ASCII.GetBytes("Test");
-        //    udp.Send(sendBytes1, sendBytes1.Length);
-
-        //    foreach (Player player in lastestGameState.players)
-        //    {
-        //        if (player.id == myAddress)
-        //        {
-        //            player.sentPos.X = currentPlayers[player.id].GetComponent<Transform>().position.x;
-        //            player.sentPos.Y = currentPlayers[player.id].GetComponent<Transform>().position.y;
-        //            player.sentPos.Z = currentPlayers[player.id].GetComponent<Transform>().position.z;
-
-        //            string json = JsonUtility.ToJson(player);
-        //            Byte[] sendJson = Encoding.UTF8.GetBytes(json);
-        //            udp.Send(sendJson, sendJson.Length);
-        //        }
-        //    }
-        //}
-
-    }
-
     void Update()
     {
         SpawnPlayers();
